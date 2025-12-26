@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi V4.0 (Auth)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Absensi Guru</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,7 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Config Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -26,38 +27,54 @@
     </script>
 
     <style>
+        /* Base Styles */
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body {
             background-color: #0f172a;
             background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0, transparent 50%);
-            color: #f8fafc; min-height: 100vh;
+            color: #f8fafc; min-height: 100vh; overflow-x: hidden;
         }
+        
+        /* Glassmorphism Panel */
         .glass-panel {
             background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Inputs */
         .glass-input {
             background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.2);
             color: white; transition: all 0.3s ease;
         }
         .glass-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        .btn-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: all 0.3s ease; }
+        
+        /* Button Gradient */
+        .btn-gradient { 
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+            transition: all 0.3s ease; 
+        }
         .btn-gradient:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.4); }
         .btn-gradient:disabled { opacity: 0.5; cursor: not-allowed; transform: none; background: #334155; }
         
-        /* Toast & Loader */
+        /* Toast & Loader Animation */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: #6366f1; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        
+        .loader { 
+            border: 3px solid rgba(255,255,255,0.1); border-left-color: #6366f1; 
+            border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="antialiased overflow-x-hidden">
+<body class="antialiased">
 
-    <!-- Toasts -->
+    <!-- Toast Notification Container -->
     <div id="toast-container"></div>
-    <!-- Loading -->
+
+    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/90 hidden flex flex-col items-center justify-center backdrop-blur-sm">
         <div class="loader w-12 h-12 mb-4"></div>
         <p class="text-indigo-300 font-medium animate-pulse" id="loading-text">Memproses...</p>
@@ -66,6 +83,7 @@
     <!-- ================= LOGIN PAGE ================= -->
     <section id="login-page" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-3xl relative overflow-hidden">
+            <!-- Background Blobs -->
             <div class="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500 rounded-full blur-[80px] opacity-20"></div>
             <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-pink-500 rounded-full blur-[80px] opacity-20"></div>
 
@@ -93,7 +111,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2">
+                <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-95 transition-transform">
                     Masuk Aplikasi <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
@@ -102,7 +120,8 @@
 
     <!-- ================= APP DASHBOARD ================= -->
     <div id="app-page" class="hidden min-h-screen flex flex-col md:flex-row relative">
-        <!-- Nav -->
+        
+        <!-- Sidebar / Bottom Nav -->
         <nav class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex md:flex-col justify-between">
             <div class="hidden md:block p-6 border-b border-white/5">
                 <div class="flex items-center gap-3">
@@ -110,15 +129,18 @@
                     <span class="font-bold text-lg text-white tracking-tight">E-Absensi</span>
                 </div>
             </div>
+
             <div class="flex md:flex-col justify-around md:justify-start p-2 md:p-4 gap-2 h-16 md:h-auto">
                 <button onclick="switchTab('home')" id="btn-tab-home" class="nav-item active flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <i class="fa-solid fa-house text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Absensi</span>
                 </button>
+                
                 <button onclick="switchTab('recap')" id="btn-tab-recap" class="nav-item flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <i class="fa-solid fa-list-ul text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Riwayat</span>
                 </button>
+
                 <div class="md:mt-auto hidden md:block">
                     <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-medium">
                         <i class="fa-solid fa-right-from-bracket"></i> Keluar
@@ -128,61 +150,72 @@
             </div>
         </nav>
 
-        <!-- Content -->
+        <!-- Main Content -->
         <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
             <header class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display" class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span> 👋</h1>
                     <p id="date-display" class="text-slate-400 text-sm mt-1"></p>
                 </div>
-                <button onclick="refreshData()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all"><i class="fa-solid fa-rotate" id="icon-refresh"></i></button>
+                <button onclick="refreshData()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
+                    <i class="fa-solid fa-rotate" id="icon-refresh"></i>
+                </button>
             </header>
 
-            <!-- Tab Home -->
+            <!-- TAB: HOME (ABSENSI) -->
             <div id="tab-home" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                        <div class="absolute right-[-10px] top-[-10px] w-24 h-24 bg-indigo-500/20 rounded-full blur-xl group-hover:bg-indigo-500/30 transition-all"></div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Hadir</p>
-                        <h3 class="text-4xl font-bold text-white" id="stat-total">0</h3>
+                
+                <!-- UI RINGKAS (1 BARIS) -->
+                <div class="glass-panel rounded-2xl p-4 flex items-center justify-between divide-x divide-white/10 shadow-lg shadow-indigo-500/5">
+                    
+                    <!-- Total Hadir -->
+                    <div class="flex-1 text-center px-2 min-w-[80px]">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1">Hadir</p>
+                        <h3 class="text-2xl font-bold text-white" id="stat-total">0</h3>
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                        <div class="absolute right-[-10px] top-[-10px] w-24 h-24 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-all"></div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Tepat Waktu</p>
-                        <h3 class="text-4xl font-bold text-green-400" id="stat-ontime">0</h3>
+
+                    <!-- Tepat Waktu -->
+                    <div class="flex-1 text-center px-2 min-w-[80px]">
+                        <p class="text-[10px] uppercase text-green-400 font-bold tracking-wider mb-1">Tepat Waktu</p>
+                        <h3 class="text-2xl font-bold text-white" id="stat-ontime">0</h3>
                     </div>
-                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                        <div class="absolute right-[-10px] top-[-10px] w-24 h-24 bg-red-500/20 rounded-full blur-xl group-hover:bg-red-500/30 transition-all"></div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Terlambat</p>
-                        <h3 class="text-4xl font-bold text-red-400" id="stat-late">0</h3>
+
+                    <!-- Terlambat -->
+                    <div class="flex-1 text-center px-2 min-w-[80px]">
+                        <p class="text-[10px] uppercase text-red-400 font-bold tracking-wider mb-1">Terlambat</p>
+                        <h3 class="text-2xl font-bold text-white" id="stat-late">0</h3>
                     </div>
                 </div>
 
-                <div class="glass-panel p-8 rounded-3xl text-center mt-4 relative border border-white/5">
+                <!-- ACTION AREA -->
+                <div class="glass-panel p-6 md:p-8 rounded-3xl text-center relative border border-white/5">
                     <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-3xl pointer-events-none"></div>
-                    <h2 class="text-lg font-medium text-slate-300 mb-1">Waktu Sekarang</h2>
-                    <p id="live-clock" class="text-5xl font-mono font-bold text-white mb-8 tracking-tighter">00:00</p>
-                    <button id="btn-absen" onclick="doAbsen()" class="btn-gradient w-full max-w-[240px] h-64 md:h-auto md:py-5 rounded-full text-xl font-bold flex flex-col items-center justify-center gap-2 mx-auto shadow-2xl shadow-indigo-500/20 active:scale-95 transition-all relative z-10">
+                    
+                    <h2 class="text-sm md:text-lg font-medium text-slate-300 mb-1">Waktu Sekarang</h2>
+                    <p id="live-clock" class="text-5xl md:text-6xl font-mono font-bold text-white mb-6 tracking-tighter">00:00</p>
+                    
+                    <button id="btn-absen" onclick="doAbsen()" class="btn-gradient w-full max-w-[200px] h-56 md:h-auto md:py-4 rounded-full text-xl font-bold flex flex-col items-center justify-center gap-2 mx-auto shadow-2xl shadow-indigo-500/20 active:scale-95 transition-all relative z-10">
                         <i class="fa-solid fa-fingerprint text-4xl md:text-3xl animate-pulse"></i>
-                        <span>ABSEN SEKARANG</span>
+                        <span>ABSEN</span>
                     </button>
-                    <div id="status-container" class="mt-8 hidden relative z-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-white/10">
+
+                    <div id="status-container" class="mt-6 hidden relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-white/10 backdrop-blur-sm">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
-                            <span class="text-sm font-medium text-slate-300">Status: <b id="status-text" class="text-white">-</b></span>
+                            <span class="text-xs md:text-sm font-medium text-slate-300">Status: <b id="status-text" class="text-white">-</b></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab Recap -->
+            <!-- TAB: RECAP (RIWAYAT) -->
             <div id="tab-recap" class="hidden space-y-6">
                 <div class="glass-panel rounded-2xl overflow-hidden">
-                    <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="p-4 md:p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-clock-rotate-left text-pink-500 mr-2"></i>Riwayat Absensi</h3>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <select id="filter-month" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm"></select>
-                            <select id="filter-year" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm w-20 md:w-24"></select>
+                            <select id="filter-month" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm w-full md:w-auto"></select>
+                            <select id="filter-year" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm w-24"></select>
                         </div>
                     </div>
                     <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
@@ -198,7 +231,7 @@
                         </table>
                         <div id="recap-empty" class="hidden p-8 text-center text-slate-500">
                             <i class="fa-regular fa-folder-open text-3xl mb-2 opacity-50"></i>
-                            <p class="text-sm">Tidak ada data.</p>
+                            <p class="text-sm">Tidak ada data absensi pada periode ini.</p>
                         </div>
                     </div>
                 </div>
@@ -207,7 +240,7 @@
         </main>
     </div>
 
-    <!-- ================= JAVASCRIPT ================= -->
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         // --- CONFIG ---
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec'; 
@@ -219,15 +252,14 @@
         let attendanceData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            checkSessionCookie(); // Cek cookie saat load pertama kali
+            checkSessionCookie();
             setInterval(updateClock, 1000);
         });
 
         // --- COOKIE MANAGEMENT ---
         
         function setSessionCookie(userObj) {
-            // Simpan username, password, dan nama sebagai JSON string
-            // Max-Age diset sangat besar (10 Tahun) agar "Never Expired"
+            // Simpan data user sebagai JSON string. Max-Age 10 Tahun (Never Expired)
             const cookieString = encodeURIComponent(JSON.stringify(userObj)) + "; path=/; max-age=" + (10 * 365 * 24 * 60 * 60);
             document.cookie = COOKIE_NAME + "=" + cookieString;
         }
@@ -249,7 +281,6 @@
         }
 
         function deleteSessionCookie() {
-            // Set cookie expired di masa lalu
             document.cookie = COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
 
@@ -261,8 +292,6 @@
             const appPage = document.getElementById('app-page');
 
             if (session) {
-                // Jika ada cookie, coba verify ke server (opsional, tapi lebih aman)
-                // Disini kita langsung percaya local cookie agar cepat (Single Page App feel)
                 currentUser = session;
                 loginPage.classList.add('hidden');
                 appPage.classList.remove('hidden');
@@ -291,16 +320,13 @@
                 const result = await res.json();
 
                 if (result.status === 'success') {
-                    // 1. Simpan Cookie (Persistent)
                     setSessionCookie({
                         username: result.userData.username,
                         name: result.userData.name,
-                        password: p // Simpan password untuk kebutuhan API selanjutnya
+                        password: p
                     });
-                    
-                    // 2. Update UI
                     currentUser = result.userData;
-                    currentUser.password = p; // Attach password manually
+                    currentUser.password = p;
                     
                     showToast('Login Berhasil!', 'success');
                     setTimeout(() => location.reload(), 1000);
@@ -351,7 +377,7 @@
             // Validasi Lokal
             if (attendanceData.some(d => d.date === dateStr)) {
                 showToast('Sudah absen hari ini!', 'warning');
-                fetchData(); // Refresh UI
+                fetchData();
                 return;
             }
 
@@ -365,7 +391,7 @@
                     body: JSON.stringify({
                         action: 'absen',
                         username: currentUser.username,
-                        password: currentUser.password, // Kirim password utk validasi ulang
+                        password: currentUser.password,
                         date: dateStr,
                         time: timeStr,
                         status: status,
@@ -406,12 +432,12 @@
                 document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status==='Terlambat'?'bg-red-500':'bg-green-500'}`;
             } else {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-fingerprint text-4xl animate-pulse"></i><span>ABSEN SEKARANG</span>`;
+                btn.innerHTML = `<i class="fa-solid fa-fingerprint text-4xl animate-pulse"></i><span>ABSEN</span>`;
                 btn.classList.remove('opacity-50');
                 statCont.classList.add('hidden');
             }
 
-            // Stats
+            // Stats (Logika Periode 26-25)
             const pid = getPeriodID(new Date());
             const pData = attendanceData.filter(d => {
                 const dd = new Date(d.date);
@@ -457,18 +483,33 @@
             }
         }
 
-        // --- UTILS ---
+        // --- UTILS & NAVIGATION ---
+
         function switchTab(tab) {
+            // Hide all tabs
             document.getElementById('tab-home').classList.add('hidden');
             document.getElementById('tab-recap').classList.add('hidden');
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            // Update nav styles...
+
+            // Reset nav styles
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active', 'text-white', 'bg-white/10');
+                btn.classList.add('text-slate-400');
+            });
+
+            // Set active nav style
+            const activeBtn = document.getElementById(`btn-tab-${tab}`);
+            activeBtn.classList.add('active', 'text-white', 'bg-white/10');
+            activeBtn.classList.remove('text-slate-400');
         }
 
         function initFilters() {
             const ms = document.getElementById('filter-month');
             const ys = document.getElementById('filter-year');
-            ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"].forEach((m,i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
+            const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
+            
+            months.forEach((m,i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
+            
             const cy = new Date().getFullYear();
             for(let i=cy-2; i<=cy+1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
             
@@ -500,6 +541,7 @@
             c.appendChild(t);
             setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
         }
+
         function animateNum(id, target) {
             const el = document.getElementById(id); const s = parseInt(el.innerText); if(s===target) return;
             const d = target - s; const dur = 500; let cur = s;
