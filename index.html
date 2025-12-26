@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Absensi Guru</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Config Tailwind -->
     <script>
@@ -28,54 +30,112 @@
 
     <style>
         /* Base Styles */
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
         body {
             background-color: #0f172a;
             background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0, transparent 50%);
-            color: #f8fafc; min-height: 100vh; overflow-x: hidden;
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        
+
         /* Glassmorphism Panel */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-        
+
         /* Inputs */
         .glass-input {
-            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.2);
-            color: white; transition: all 0.3s ease;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: white;
+            transition: all 0.3s ease;
         }
-        .glass-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        
+
+        .glass-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
         /* Button Gradient */
-        .btn-gradient { 
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
-            transition: all 0.3s ease; 
+        .btn-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transition: all 0.3s ease;
         }
-        .btn-gradient:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.4); }
-        .btn-gradient:disabled { opacity: 0.5; cursor: not-allowed; transform: none; background: #334155; }
-        
+
+        .btn-gradient:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-gradient:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background: #334155;
+        }
+
         /* Toast & Loader Animation */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
-        .loader { 
-            border: 3px solid rgba(255,255,255,0.1); border-left-color: #6366f1; 
-            border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; 
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .toast {
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #6366f1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
+
 <body class="antialiased">
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
 
     <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/90 hidden flex flex-col items-center justify-center backdrop-blur-sm">
+    <div id="loading-overlay"
+        class="fixed inset-0 z-50 bg-slate-900/90 hidden flex flex-col items-center justify-center backdrop-blur-sm">
         <div class="loader w-12 h-12 mb-4"></div>
         <p class="text-indigo-300 font-medium animate-pulse" id="loading-text">Memproses...</p>
     </div>
@@ -88,7 +148,8 @@
             <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-pink-500 rounded-full blur-[80px] opacity-20"></div>
 
             <div class="text-center mb-8 relative z-10">
-                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
+                <div
+                    class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
                     <i class="fa-solid fa-fingerprint text-2xl text-white"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-white tracking-tight">Login Guru</h1>
@@ -100,18 +161,23 @@
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-slate-500"></i>
-                        <input type="text" id="login-user" class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600" placeholder="Username" required autocomplete="username">
+                        <input type="text" id="login-user"
+                            class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600"
+                            placeholder="Username" required autocomplete="username">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Password</label>
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500"></i>
-                        <input type="password" id="login-pass" class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600" placeholder="••••••••" required autocomplete="current-password">
+                        <input type="password" id="login-pass"
+                            class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600"
+                            placeholder="••••••••" required autocomplete="current-password">
                     </div>
                 </div>
-                
-                <button type="submit" class="btn-gradient w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+
+                <button type="submit"
+                    class="btn-gradient w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-95 transition-transform">
                     Masuk Aplikasi <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
@@ -120,33 +186,39 @@
 
     <!-- ================= APP DASHBOARD ================= -->
     <div id="app-page" class="hidden min-h-screen flex flex-col md:flex-row relative">
-        
+
         <!-- Sidebar / Bottom Nav -->
-        <nav class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex md:flex-col justify-between">
+        <nav
+            class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex md:flex-col justify-between">
             <div class="hidden md:block p-6 border-b border-white/5">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center"><i class="fa-solid fa-graduation-cap text-white text-sm"></i></div>
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center"><i
+                            class="fa-solid fa-graduation-cap text-white text-sm"></i></div>
                     <span class="font-bold text-lg text-white tracking-tight">E-Absensi</span>
                 </div>
             </div>
 
             <div class="flex md:flex-col justify-around md:justify-start p-2 md:p-4 gap-2 h-16 md:h-auto">
-                <button onclick="switchTab('home')" id="btn-tab-home" class="nav-item active flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                <button onclick="switchTab('home')" id="btn-tab-home"
+                    class="nav-item active flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <i class="fa-solid fa-house text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Absensi</span>
                 </button>
-                
-                <button onclick="switchTab('recap')" id="btn-tab-recap" class="nav-item flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+
+                <button onclick="switchTab('recap')" id="btn-tab-recap"
+                    class="nav-item flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                     <i class="fa-solid fa-list-ul text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Riwayat</span>
                 </button>
 
                 <div class="md:mt-auto hidden md:block">
-                    <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-medium">
+                    <button onclick="handleLogout()"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-medium">
                         <i class="fa-solid fa-right-from-bracket"></i> Keluar
                     </button>
                 </div>
-                <button onclick="handleLogout()" class="md:hidden text-red-400 p-2"><i class="fa-solid fa-right-from-bracket text-lg"></i></button>
+                <button onclick="handleLogout()" class="md:hidden text-red-400 p-2"><i
+                        class="fa-solid fa-right-from-bracket text-lg"></i></button>
             </div>
         </nav>
 
@@ -154,20 +226,24 @@
         <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
             <header class="flex justify-between items-center mb-8">
                 <div>
-                    <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display" class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span></h1>
+                    <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display"
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span>
+                    </h1>
                     <p id="date-display" class="text-slate-400 text-sm mt-1"></p>
                 </div>
-                <button onclick="refreshData()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
+                <button onclick="refreshData()"
+                    class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
                     <i class="fa-solid fa-rotate" id="icon-refresh"></i>
                 </button>
             </header>
 
             <!-- TAB: HOME (ABSENSI) -->
             <div id="tab-home" class="space-y-6">
-                
+
                 <!-- UI RINGKAS (1 BARIS) -->
-                <div class="glass-panel rounded-2xl p-4 flex items-center justify-between divide-x divide-white/10 shadow-lg shadow-indigo-500/5">
-                    
+                <div
+                    class="glass-panel rounded-2xl p-4 flex items-center justify-between divide-x divide-white/10 shadow-lg shadow-indigo-500/5">
+
                     <!-- Total Hadir -->
                     <div class="flex-1 text-center px-2 min-w-[80px]">
                         <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1">Hadir</p>
@@ -189,20 +265,26 @@
 
                 <!-- ACTION AREA -->
                 <div class="glass-panel p-6 md:p-8 rounded-3xl text-center relative border border-white/5">
-                    <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-3xl pointer-events-none"></div>
-                    
+                    <div
+                        class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-3xl pointer-events-none">
+                    </div>
+
                     <h2 class="text-sm md:text-lg font-medium text-slate-300 mb-1">Waktu Sekarang</h2>
-                    <p id="live-clock" class="text-5xl md:text-6xl font-mono font-bold text-white mb-6 tracking-tighter">00:00</p>
-                    
-                    <button id="btn-absen" onclick="doAbsen()" class="btn-gradient w-full max-w-[200px] h-56 md:h-auto md:py-4 rounded-full text-xl font-bold flex flex-col items-center justify-center gap-2 mx-auto shadow-2xl shadow-indigo-500/20 active:scale-95 transition-all relative z-10">
+                    <p id="live-clock"
+                        class="text-5xl md:text-6xl font-mono font-bold text-white mb-6 tracking-tighter">00:00</p>
+
+                    <button id="btn-absen" onclick="doAbsen()"
+                        class="btn-gradient w-full max-w-[200px] h-56 md:h-auto md:py-4 rounded-full text-xl font-bold flex flex-col items-center justify-center gap-2 mx-auto shadow-2xl shadow-indigo-500/20 active:scale-95 transition-all relative z-10">
                         <i class="fa-solid fa-fingerprint text-4xl md:text-3xl animate-pulse"></i>
                         <span>ABSEN</span>
                     </button>
 
                     <div id="status-container" class="mt-6 hidden relative z-10">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-white/10 backdrop-blur-sm">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-white/10 backdrop-blur-sm">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
-                            <span class="text-xs md:text-sm font-medium text-slate-300">Status: <b id="status-text" class="text-white">-</b></span>
+                            <span class="text-xs md:text-sm font-medium text-slate-300">Status: <b id="status-text"
+                                    class="text-white">-</b></span>
                         </div>
                     </div>
                 </div>
@@ -211,11 +293,15 @@
             <!-- TAB: RECAP (RIWAYAT) -->
             <div id="tab-recap" class="hidden space-y-6">
                 <div class="glass-panel rounded-2xl overflow-hidden">
-                    <div class="p-4 md:p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-clock-rotate-left text-pink-500 mr-2"></i>Riwayat Absensi</h3>
+                    <div
+                        class="p-4 md:p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h3 class="text-lg font-bold text-white"><i
+                                class="fa-solid fa-clock-rotate-left text-pink-500 mr-2"></i>Riwayat Absensi</h3>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <select id="filter-month" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm w-full md:w-auto"></select>
-                            <select id="filter-year" onchange="renderRecap()" class="glass-input px-3 py-2 rounded-lg text-sm w-24"></select>
+                            <select id="filter-month" onchange="renderRecap()"
+                                class="glass-input px-3 py-2 rounded-lg text-sm w-full md:w-auto"></select>
+                            <select id="filter-year" onchange="renderRecap()"
+                                class="glass-input px-3 py-2 rounded-lg text-sm w-24"></select>
                         </div>
                     </div>
                     <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
@@ -243,7 +329,7 @@
     <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         // --- CONFIG ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec';
         const COOKIE_NAME = 'absensi_auth_v4';
         const JAM_MASUK = 7;
 
@@ -257,7 +343,7 @@
         });
 
         // --- COOKIE MANAGEMENT ---
-        
+
         function setSessionCookie(userObj) {
             // Simpan data user sebagai JSON string. Max-Age 10 Tahun (Never Expired)
             const cookieString = encodeURIComponent(JSON.stringify(userObj)) + "; path=/; max-age=" + (10 * 365 * 24 * 60 * 60);
@@ -274,7 +360,7 @@
                     try {
                         const data = decodeURIComponent(c.substring(nameEQ.length, c.length));
                         return JSON.parse(data);
-                    } catch(e) { return null; }
+                    } catch (e) { return null; }
                 }
             }
             return null;
@@ -295,7 +381,7 @@
                 currentUser = session;
                 loginPage.classList.add('hidden');
                 appPage.classList.remove('hidden');
-                
+
                 document.getElementById('user-name-display').textContent = currentUser.name || currentUser.username;
                 updateDateDisplay();
                 initFilters();
@@ -327,7 +413,7 @@
                     });
                     currentUser = result.userData;
                     currentUser.password = p;
-                    
+
                     showToast('Login Berhasil!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
@@ -341,7 +427,7 @@
         });
 
         function handleLogout() {
-            if(confirm('Apakah Anda yakin ingin keluar?')) {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
                 deleteSessionCookie();
                 location.reload();
             }
@@ -357,13 +443,13 @@
                     body: JSON.stringify({ action: 'get_data', username: currentUser.username })
                 });
                 const result = await res.json();
-                
+
                 if (result.status === 'success') {
                     attendanceData = result.data;
                     renderDashboard();
                 }
             } catch (e) { showToast('Gagal memuat data', 'error'); }
-            finally { 
+            finally {
                 toggleLoading(false);
                 document.getElementById('icon-refresh').classList.remove('fa-spin');
             }
@@ -373,7 +459,7 @@
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
             const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-            
+
             // Validasi Lokal
             if (attendanceData.some(d => d.date === dateStr)) {
                 showToast('Sudah absen hari ini!', 'warning');
@@ -399,7 +485,7 @@
                     })
                 });
                 const result = await res.json();
-                
+
                 if (result.status === 'success') {
                     showToast('Berhasil Absen!', 'success');
                     fetchData();
@@ -431,7 +517,7 @@
                 // Format Jam Display di Tombol/Status (Tanpa Detik)
                 const displayTime = formatTimeNoSec(todayData.time);
                 document.getElementById('status-text').textContent = `${todayData.status} (${displayTime})`;
-                document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status==='Terlambat'?'bg-red-500':'bg-green-500'}`;
+                document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status === 'Terlambat' ? 'bg-red-500' : 'bg-green-500'}`;
             } else {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-fingerprint text-4xl animate-pulse"></i><span>ABSEN</span>`;
@@ -452,7 +538,7 @@
             animateNum('stat-total', total);
             animateNum('stat-late', late);
             animateNum('stat-ontime', ontime);
-            
+
             renderRecap();
         }
 
@@ -466,7 +552,7 @@
             const filtered = attendanceData.filter(d => {
                 const dd = new Date(d.date);
                 return getPeriodID(dd) === `${yVal}-${mVal}`;
-            }).sort((a,b) => new Date(b.date) - new Date(a.date));
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (filtered.length === 0) { empty.classList.remove('hidden'); }
             else {
@@ -474,16 +560,16 @@
                 filtered.forEach(row => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
-                    
+
                     // Format: Hari, Tanggal
                     const dateObj = new Date(row.date);
                     const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' }); // Senin, Selasa...
                     const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                     const fullDate = `${dayName}, ${dateOnly}`;
-                    
+
                     // Format Jam: 07.15 (Tanpa detik)
                     const timeDisplay = formatTimeNoSec(row.time);
-                    
+
                     const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
 
                     tr.innerHTML = `
@@ -519,13 +605,13 @@
         function initFilters() {
             const ms = document.getElementById('filter-month');
             const ys = document.getElementById('filter-year');
-            const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
-            
-            months.forEach((m,i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
-            
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+
+            months.forEach((m, i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
+
             const cy = new Date().getFullYear();
-            for(let i=cy-2; i<=cy+1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
-            
+            for (let i = cy - 2; i <= cy + 1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
+
             // Set default active period
             const now = new Date();
             const pid = getPeriodID(now).split('-');
@@ -536,38 +622,43 @@
         function getPeriodID(d) {
             const day = d.getDate();
             let m = d.getMonth(), y = d.getFullYear();
-            if (day >= 26) { m++; if(m>11){m=0; y++;} }
+            if (day >= 26) { m++; if (m > 11) { m = 0; y++; } }
             return `${y}-${m}`;
         }
 
         function formatTimeNoSec(timeStr) {
-            // Mengubah "07:15:30" menjadi "07.15"
-            // Menggunakan split() agar tidak bergantung pada regex complex
-            if (!timeStr) return "--:--";
-            const parts = timeStr.split(':'); // [HH, MM, SS]
-            return `${parts[0]}.${parts[1]}`;
+            if (!timeStr || timeStr === "") return "--:--";
+
+            // Coba pisahkan jam, menit, detik
+            const parts = timeStr.split(':');
+
+            const hour = parts[0] ? parts[0] : "--";
+            const minute = parts[1] ? parts[1] : "00";
+
+            return `${hour}.${minute}`;
         }
 
-        function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', {hour12:false}); }
-        function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'}); }
-        function toggleLoading(show, txt) { const el = document.getElementById('loading-overlay'); document.getElementById('loading-text').textContent = txt; if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-        
+        function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
+        function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
+        function toggleLoading(show, txt) { const el = document.getElementById('loading-overlay'); document.getElementById('loading-text').textContent = txt; if (show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
+
         function showToast(msg, type) {
             const c = document.getElementById('toast-container');
             const t = document.createElement('div');
-            const bg = type==='success'?'bg-green-500':(type==='error'?'bg-red-500':'bg-yellow-500');
-            const ic = type==='success'?'fa-check':(type==='error'?'fa-xmark':'fa-info');
-            t.className = `toast glass-panel px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] border-l-4 ${type==='success'?'border-green-500':(type==='error'?'border-red-500':'border-yellow-500')}`;
+            const bg = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : 'bg-yellow-500');
+            const ic = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-xmark' : 'fa-info');
+            t.className = `toast glass-panel px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] border-l-4 ${type === 'success' ? 'border-green-500' : (type === 'error' ? 'border-red-500' : 'border-yellow-500')}`;
             t.innerHTML = `<div class="${bg} w-6 h-6 rounded-full flex items-center justify-center text-xs text-white shrink-0"><i class="fa-solid ${ic}"></i></div><span class="text-sm font-medium text-white">${msg}</span>`;
             c.appendChild(t);
-            setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
         }
 
         function animateNum(id, target) {
-            const el = document.getElementById(id); const s = parseInt(el.innerText); if(s===target) return;
+            const el = document.getElementById(id); const s = parseInt(el.innerText); if (s === target) return;
             const d = target - s; const dur = 500; let cur = s;
-            const timer = setInterval(() => { cur += (d>0?1:-1); el.innerText=cur; if(cur===target) clearInterval(timer); }, Math.max(10, dur/Math.abs(d)));
+            const timer = setInterval(() => { cur += (d > 0 ? 1 : -1); el.innerText = cur; if (cur === target) clearInterval(timer); }, Math.max(10, dur / Math.abs(d)));
         }
     </script>
 </body>
+
 </html>
