@@ -380,7 +380,7 @@
                 currentUser = session;
                 loginPage.classList.add('hidden');
                 appPage.classList.remove('hidden');
-                
+
                 document.getElementById('user-name-display').textContent = currentUser.name || currentUser.username;
                 updateDateDisplay();
                 initFilters();
@@ -412,7 +412,7 @@
                     });
                     currentUser = result.userData;
                     currentUser.password = p;
-                    
+
                     showToast('Login Berhasil!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
@@ -426,7 +426,7 @@
         });
 
         function handleLogout() {
-            if(confirm('Apakah Anda yakin ingin keluar?')) {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
                 deleteSessionCookie();
                 location.reload();
             }
@@ -442,13 +442,13 @@
                     body: JSON.stringify({ action: 'get_data', username: currentUser.username })
                 });
                 const result = await res.json();
-                
+
                 if (result.status === 'success') {
                     attendanceData = result.data;
                     renderDashboard();
                 }
             } catch (e) { showToast('Gagal memuat data', 'error'); }
-            finally { 
+            finally {
                 toggleLoading(false);
                 document.getElementById('icon-refresh').classList.remove('fa-spin');
             }
@@ -456,19 +456,23 @@
 
         async function doAbsen() {
             const now = new Date();
-            
-            // Fix Format Tanggal: Gunakan YYYY-MM-DD lokal manual agar akurat (WIB)
+
+            // --- 1. FORMAT TANGGAL (Lokal WIB) ---
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
-            
-            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-            
-            // Fix Validasi Lokal
+
+            // --- 2. FORMAT JAM (TANPA DETIK) ---
+            // Kita ambil jam dan menit secara manual, tanpa detik/milidetik
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            const timeStr = `${hour}:${minute}`; // Hasil: "00:44" atau "22:52"
+
+            // --- 3. VALIDASI ---
             const isAlreadyAbsen = attendanceData.some(d => {
                 const dbDateStr = d.date;
-                return dbDateStr === dateStr; 
+                return dbDateStr === dateStr;
             });
 
             if (isAlreadyAbsen) {
@@ -477,15 +481,15 @@
                 return;
             }
 
-            const hour = now.getHours();
-            
-            // Status: Tepat Waktu / Terlambat
-            let status = 'Tepat Waktu';
-            if (hour >= JAM_MASUK) status = 'Terlambat';
+            // --- 4. LOGIKA STATUS ---
+            const currentHour = now.getHours();
 
-            // Kategori: Selalu 'Hadir' (Logic Fixed)
+            let status = 'Tepat Waktu';
+            if (currentHour >= JAM_MASUK) status = 'Terlambat';
+
             let category = 'Hadir';
 
+            // --- 5. KIRIM DATA ---
             toggleLoading(true, 'Mengirim absensi...');
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -495,13 +499,13 @@
                         username: currentUser.username,
                         password: currentUser.password,
                         date: dateStr,
-                        time: timeStr,
+                        time: timeStr, // Kirim format bersih "HH:mm"
                         status: status,
                         category: category
                     })
                 });
                 const result = await res.json();
-                
+
                 if (result.status === 'success') {
                     showToast('Berhasil Absen!', 'success');
                     fetchData();
@@ -526,7 +530,7 @@
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const todayDateStr = `${year}-${month}-${day}`;
-            
+
             const todayData = attendanceData.find(d => d.date === todayDateStr);
             const btn = document.getElementById('btn-absen');
             const statCont = document.getElementById('status-container');
@@ -536,7 +540,7 @@
                 btn.innerHTML = `<i class="fa-solid fa-check text-4xl"></i><span>SELESAI</span>`;
                 btn.classList.add('opacity-50');
                 statCont.classList.remove('hidden');
-                
+
                 const displayTime = formatTimeNoSec(todayData.time);
                 document.getElementById('status-text').textContent = `${todayData.status} (${displayTime})`;
                 document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status === 'Terlambat' ? 'bg-red-500' : 'bg-green-500'}`;
@@ -560,7 +564,7 @@
             animateNum('stat-total', total);
             animateNum('stat-late', late);
             animateNum('stat-ontime', ontime);
-            
+
             renderRecap();
         }
 
@@ -574,7 +578,7 @@
             const filtered = attendanceData.filter(d => {
                 const dd = new Date(d.date);
                 return getPeriodID(dd) === `${yVal}-${mVal}`;
-            }).sort((a,b) => new Date(b.date) - new Date(a.date));
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (filtered.length === 0) { empty.classList.remove('hidden'); }
             else {
@@ -582,12 +586,12 @@
                 filtered.forEach(row => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
-                    
+
                     // Format: Hari, Tanggal
                     const dateObj = new Date(row.date);
-                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' }); 
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
                     const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                    
+
                     // Format Jam: 07.15
                     const timeDisplay = formatTimeNoSec(row.time);
                     const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
@@ -625,13 +629,13 @@
         function initFilters() {
             const ms = document.getElementById('filter-month');
             const ys = document.getElementById('filter-year');
-            const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
-            
-            months.forEach((m,i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
-            
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+
+            months.forEach((m, i) => ms.innerHTML += `<option value="${i}">${m}</option>`);
+
             const cy = new Date().getFullYear();
-            for(let i=cy-2; i<=cy+1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
-            
+            for (let i = cy - 2; i <= cy + 1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
+
             // Set default active period
             const now = new Date();
             const pid = getPeriodID(now).split('-');
@@ -642,38 +646,39 @@
         function getPeriodID(d) {
             const day = d.getDate();
             let m = d.getMonth(), y = d.getFullYear();
-            if (day >= 26) { m++; if(m>11){m=0; y++;} }
+            if (day >= 26) { m++; if (m > 11) { m = 0; y++; } }
             return `${y}-${m}`;
         }
 
         function formatTimeNoSec(timeStr) {
             if (!timeStr || timeStr === "") return "--:--";
-            const parts = timeStr.split(':'); 
+            const parts = timeStr.split(':');
             const hour = parts[0] ? parts[0] : "--";
             const minute = parts[1] ? parts[1] : "00";
             return `${hour}.${minute}`;
         }
 
-        function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', {hour12:false}); }
-        function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'}); }
-        function toggleLoading(show, txt) { const el = document.getElementById('loading-overlay'); document.getElementById('loading-text').textContent = txt; if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-        
+        function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
+        function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
+        function toggleLoading(show, txt) { const el = document.getElementById('loading-overlay'); document.getElementById('loading-text').textContent = txt; if (show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
+
         function showToast(msg, type) {
             const c = document.getElementById('toast-container');
             const t = document.createElement('div');
-            const bg = type==='success'?'bg-green-500':(type==='error'?'bg-red-500':'bg-yellow-500');
-            const ic = type==='success'?'fa-check':(type==='error'?'fa-xmark':'fa-info');
-            t.className = `toast glass-panel px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] border-l-4 ${type==='success'?'border-green-500':(type==='error'?'border-red-500':'border-yellow-500')}`;
+            const bg = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : 'bg-yellow-500');
+            const ic = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-xmark' : 'fa-info');
+            t.className = `toast glass-panel px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] border-l-4 ${type === 'success' ? 'border-green-500' : (type === 'error' ? 'border-red-500' : 'border-yellow-500')}`;
             t.innerHTML = `<div class="${bg} w-6 h-6 rounded-full flex items-center justify-center text-xs text-white shrink-0"><i class="fa-solid ${ic}"></i></div><span class="text-sm font-medium text-white">${msg}</span>`;
             c.appendChild(t);
-            setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
         }
 
         function animateNum(id, target) {
-            const el = document.getElementById(id); const s = parseInt(el.innerText); if(s===target) return;
+            const el = document.getElementById(id); const s = parseInt(el.innerText); if (s === target) return;
             const d = target - s; const dur = 500; let cur = s;
-            const timer = setInterval(() => { cur += (d>0?1:-1); el.innerText=cur; if(cur===target) clearInterval(timer); }, Math.max(10, dur/Math.abs(d)));
+            const timer = setInterval(() => { cur += (d > 0 ? 1 : -1); el.innerText = cur; if (cur === target) clearInterval(timer); }, Math.max(10, dur / Math.abs(d)));
         }
     </script>
 </body>
+
 </html>
