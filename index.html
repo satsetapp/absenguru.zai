@@ -154,7 +154,7 @@
         <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
             <header class="flex justify-between items-center mb-8">
                 <div>
-                    <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display" class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span> 👋</h1>
+                    <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display" class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span></h1>
                     <p id="date-display" class="text-slate-400 text-sm mt-1"></p>
                 </div>
                 <button onclick="refreshData()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
@@ -222,7 +222,7 @@
                         <table class="w-full text-left">
                             <thead class="bg-slate-800/50 sticky top-0 backdrop-blur-md">
                                 <tr class="text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="p-4 font-semibold">Tanggal</th>
+                                    <th class="p-4 font-semibold">Hari, Tanggal</th>
                                     <th class="p-4 font-semibold">Jam</th>
                                     <th class="p-4 font-semibold">Status</th>
                                 </tr>
@@ -428,7 +428,9 @@
                 btn.innerHTML = `<i class="fa-solid fa-check text-4xl"></i><span>SELESAI</span>`;
                 btn.classList.add('opacity-50');
                 statCont.classList.remove('hidden');
-                document.getElementById('status-text').textContent = `${todayData.status} (${todayData.time})`;
+                // Format Jam Display di Tombol/Status (Tanpa Detik)
+                const displayTime = formatTimeNoSec(todayData.time);
+                document.getElementById('status-text').textContent = `${todayData.status} (${displayTime})`;
                 document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status==='Terlambat'?'bg-red-500':'bg-green-500'}`;
             } else {
                 btn.disabled = false;
@@ -437,7 +439,7 @@
                 statCont.classList.add('hidden');
             }
 
-            // Stats (Logika Periode 26-25)
+            // Stats
             const pid = getPeriodID(new Date());
             const pData = attendanceData.filter(d => {
                 const dd = new Date(d.date);
@@ -472,10 +474,24 @@
                 filtered.forEach(row => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
+                    
+                    // Format: Hari, Tanggal
+                    const dateObj = new Date(row.date);
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' }); // Senin, Selasa...
+                    const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const fullDate = `${dayName}, ${dateOnly}`;
+                    
+                    // Format Jam: 07.15 (Tanpa detik)
+                    const timeDisplay = formatTimeNoSec(row.time);
+                    
                     const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
+
                     tr.innerHTML = `
-                        <td class="p-4">${new Date(row.date).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</td>
-                        <td class="p-4 font-mono">${row.time}</td>
+                        <td class="p-4">
+                            <div class="text-white font-medium">${dayName}</div>
+                            <div class="text-xs text-slate-400">${dateOnly}</div>
+                        </td>
+                        <td class="p-4 font-mono text-slate-200">${timeDisplay}</td>
                         <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badge}">${row.status}</span></td>
                     `;
                     tbody.appendChild(tr);
@@ -486,18 +502,15 @@
         // --- UTILS & NAVIGATION ---
 
         function switchTab(tab) {
-            // Hide all tabs
             document.getElementById('tab-home').classList.add('hidden');
             document.getElementById('tab-recap').classList.add('hidden');
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
 
-            // Reset nav styles
             document.querySelectorAll('.nav-item').forEach(btn => {
                 btn.classList.remove('active', 'text-white', 'bg-white/10');
                 btn.classList.add('text-slate-400');
             });
 
-            // Set active nav style
             const activeBtn = document.getElementById(`btn-tab-${tab}`);
             activeBtn.classList.add('active', 'text-white', 'bg-white/10');
             activeBtn.classList.remove('text-slate-400');
@@ -525,6 +538,14 @@
             let m = d.getMonth(), y = d.getFullYear();
             if (day >= 26) { m++; if(m>11){m=0; y++;} }
             return `${y}-${m}`;
+        }
+
+        function formatTimeNoSec(timeStr) {
+            // Mengubah "07:15:30" menjadi "07.15"
+            // Menggunakan split() agar tidak bergantung pada regex complex
+            if (!timeStr) return "--:--";
+            const parts = timeStr.split(':'); // [HH, MM, SS]
+            return `${parts[0]}.${parts[1]}`;
         }
 
         function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', {hour12:false}); }
