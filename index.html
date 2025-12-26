@@ -458,7 +458,7 @@
         async function doAbsen() {
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
-            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false }); // Format 24 jam "22:52:18"
 
             // Validasi Lokal
             if (attendanceData.some(d => d.date === dateStr)) {
@@ -467,8 +467,16 @@
                 return;
             }
 
-            const status = (now.getHours() >= JAM_MASUK) ? 'Terlambat' : 'Tepat Waktu';
-            const category = (now.getHours() >= JAM_MASUK) ? 'Terlambat' : 'Hadir';
+            const hour = now.getHours();
+
+            // PERBAIKAN LOGIKA AGAR BEDA
+            // Status: Keterangan Visual (Tepat Waktu / Terlambat)
+            let status = 'Tepat Waktu';
+            if (hour >= JAM_MASUK) status = 'Terlambat';
+
+            // Kategori: Grup Statistik (Hadir / Tidak Hadir)
+            // Meskipun Terlambat, kategorinya tetap 'Hadir' agar terhitung di statistik
+            let category = 'Hadir';
 
             toggleLoading(true, 'Mengirim absensi...');
             try {
@@ -479,7 +487,7 @@
                         username: currentUser.username,
                         password: currentUser.password,
                         date: dateStr,
-                        time: timeStr,
+                        time: timeStr, // Data jam dikirim lengkap ke server
                         status: status,
                         category: category
                     })
