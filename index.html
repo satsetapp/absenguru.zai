@@ -646,15 +646,24 @@
             return `${y}-${m}`;
         }
 
-        
+        /*
         function formatTimeNoSec(timeStr) {
             if (!timeStr || timeStr === "") return "--:--";
-            const parts = timeStr.split(':'); 
+            const parts = timeStr.split(':');
             const hour = parts[0] ? parts[0] : "--";
             const minute = parts[1] ? parts[1] : "00";
             return `${hour}.${minute}`;
         }
-        
+        */
+
+        function formatTimeNoSec(timeStr) {
+            if (!timeStr) return "";
+            let s = String(timeStr).trim();
+            // Hapus ".00" di belakang saja
+            s = s.replace(/(\.00)+$/, "");
+
+            return s;
+        }
 
 
         function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
