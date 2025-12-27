@@ -172,7 +172,7 @@
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="password" id="login-pass"
                             class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600"
-                            placeholder="•••••••" required autocomplete="current-password">
+                            placeholder="••••••" required autocomplete="current-password">
                     </div>
                 </div>
 
@@ -246,14 +246,14 @@
 
                     <!-- Total Hadir -->
                     <div class="flex-1 text-center px-2 min-w-[80px]">
-                        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-1">Hadir</p>
-                        <h3 class="text-2xl font-bold text-white" id="stat-total">0</h3>
+                        <p class="text-[10px] uppercase text-green-400 font-bold tracking-wider mb-1">Hadir</p>
+                        <h3 class="text-2xl font-bold text-green-400" id="stat-total">0</h3>
                     </div>
 
-                    <!-- Tepat Waktu -->
+                    <!-- Tidak Hadir -->
                     <div class="flex-1 text-center px-2 min-w-[80px]">
-                        <p class="text-[10px] uppercase text-green-400 font-bold tracking-wider mb-1">Tepat Waktu</p>
-                        <h3 class="text-2xl font-bold text-white" id="stat-ontime">0</h3>
+                        <p class="text-[10px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir</p>
+                        <h3 class="text-2xl font-bold text-white" id="stat-absent">0</h3>
                     </div>
 
                     <!-- Terlambat -->
@@ -278,6 +278,13 @@
                         <i class="fa-solid fa-fingerprint text-4xl md:text-3xl animate-pulse"></i>
                         <span>ABSEN</span>
                     </button>
+
+                    <!-- BUTTON TIDAK HADIR -->
+                    <div class="mt-6 relative z-10">
+                        <button onclick="openAbsenceModal()" class="text-xs text-slate-400 hover:text-slate-200 underline decoration-dotted underline-offset-4">
+                            Tidak bisa hadir hari ini?
+                        </button>
+                    </div>
 
                     <div id="status-container" class="mt-6 hidden relative z-10">
                         <div
@@ -304,6 +311,23 @@
                                 class="glass-input px-3 py-2 rounded-lg text-sm w-24"></select>
                         </div>
                     </div>
+
+                    <!-- RINGKASAN DI ATAS TABEL (SAMA SEPERTI MENU ABSENSI) -->
+                    <div class="grid grid-cols-3 gap-2 p-4 border-b border-white/10 bg-slate-800/50">
+                        <div class="text-center p-2 rounded bg-slate-700/50">
+                            <p class="text-[9px] uppercase text-green-400 font-bold tracking-wider mb-1">Hadir</p>
+                            <h3 class="text-xl font-bold text-green-400" id="recap-stat-total">0</h3>
+                        </div>
+                        <div class="text-center p-2 rounded bg-slate-700/50">
+                            <p class="text-[9px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir</p>
+                            <h3 class="text-xl font-bold text-yellow-400" id="recap-stat-absent">0</h3>
+                        </div>
+                        <div class="text-center p-2 rounded bg-slate-700/50">
+                            <p class="text-[9px] uppercase text-red-400 font-bold tracking-wider mb-1">Terlambat</p>
+                            <h3 class="text-xl font-bold text-red-400" id="recap-stat-late">0</h3>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                         <table class="w-full text-left">
                             <thead class="bg-slate-800/50 sticky top-0 backdrop-blur-md">
@@ -326,12 +350,26 @@
         </main>
     </div>
 
-    <!-- ================= JAVASCRIPT LOGIC (FULLY FIXED) ================= -->
+    <!-- MODAL TIDAK HADIR -->
+    <div id="absence-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm rounded-2xl p-6 relative animate-bounce-short">
+            <h3 class="text-lg font-bold text-white mb-4 text-center">Alasan Tidak Hadir</h3>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="submitAbsence('Sakit')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Sakit</button>
+                <button onclick="submitAbsence('Izin')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Izin</button>
+                <button onclick="submitAbsence('Lainnya')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Lainnya</button>
+            </div>
+            <button onclick="closeAbsenceModal()" class="mt-4 text-slate-400 text-sm hover:text-white w-full text-center">Batal</button>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         // --- CONFIG ---
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec';
         const COOKIE_NAME = 'absensi_auth_v4';
         const JAM_MASUK = 7;
+        const TOLERANSI_MENIT = 15;
 
         // --- GLOBAL STATE ---
         let currentUser = null; // Object { username, name, password }
@@ -457,35 +495,59 @@
         async function doAbsen() {
             const now = new Date();
 
-            // Fix Format Tanggal: Gunakan YYYY-MM-DD lokal manual agar akurat (WIB)
+            // Format Tanggal & Jam
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-
-            // Fix Validasi Lokal
-            const isAlreadyAbsen = attendanceData.some(d => {
-                const dbDateStr = d.date;
-                return dbDateStr === dateStr;
-            });
-
-            if (isAlreadyAbsen) {
+            // Validasi
+            if (attendanceData.some(d => d.date === dateStr)) {
                 showToast('Sudah absen hari ini!', 'warning');
                 fetchData();
                 return;
             }
 
+            // --- LOGIKA STATUS DENGAN TOLERANSI ---
             const hour = now.getHours();
+            const minute = now.getMinutes();
 
-            // Status: Tepat Waktu / Terlambat
+            const nowTotal = hour * 60 + minute;
+            const limitTotal = JAM_MASUK * 60 + TOLERANSI_MENIT;
+
             let status = 'Tepat Waktu';
-            if (hour >= JAM_MASUK) status = 'Terlambat';
-
-            // Kategori: Selalu 'Hadir' (Logic Fixed)
+            if (nowTotal > limitTotal) status = 'Terlambat';
+            
             let category = 'Hadir';
 
+            await sendAbsenceData(dateStr, timeStr, status, category);
+        }
+
+        function submitAbsence(reason) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            const timeStr = "--:--";
+
+            // Validasi
+            if (attendanceData.some(d => d.date === dateStr)) {
+                closeAbsenceModal();
+                showToast('Data hari ini sudah ada!', 'warning');
+                fetchData();
+                return;
+            }
+
+            const status = reason;
+            const category = 'Tidak Hadir';
+
+            closeAbsenceModal();
+            sendAbsenceData(dateStr, timeStr, status, category);
+        }
+
+        async function sendAbsenceData(dateStr, timeStr, status, category) {
             toggleLoading(true, 'Mengirim absensi...');
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -520,7 +582,6 @@
         // --- UI RENDERING ---
 
         function renderDashboard() {
-            // Fix Format Tanggal di Dashboard
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -533,13 +594,19 @@
 
             if (todayData) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-check text-4xl"></i><span>SELESAI</span>`;
+                const btnText = todayData.category === 'Tidak Hadir' ? 'SELESAI (TIK HADIR)' : 'SELESAI';
+                btn.innerHTML = `<i class="fa-solid fa-check text-4xl"></i><span>${btnText}</span>`;
                 btn.classList.add('opacity-50');
                 statCont.classList.remove('hidden');
 
-                const displayTime = formatTimeNoSec(todayData.time);
+                const displayTime = todayData.time === '--:--' ? todayData.status : formatTimeNoSec(todayData.time);
                 document.getElementById('status-text').textContent = `${todayData.status} (${displayTime})`;
-                document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${todayData.status === 'Terlambat' ? 'bg-red-500' : 'bg-green-500'}`;
+                
+                let dotColor = 'bg-green-500';
+                if(todayData.status === 'Terlambat') dotColor = 'bg-red-500';
+                if(todayData.category === 'Tidak Hadir') dotColor = 'bg-yellow-500';
+                document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${dotColor}`;
+
             } else {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-fingerprint text-4xl animate-pulse"></i><span>ABSEN</span>`;
@@ -547,19 +614,21 @@
                 statCont.classList.add('hidden');
             }
 
-            // Stats (Logic 26-25)
+            // STATS
             const pid = getPeriodID(new Date());
             const pData = attendanceData.filter(d => {
                 const dd = new Date(d.date);
                 return getPeriodID(dd) === pid;
             });
-            const total = pData.length;
-            const late = pData.filter(d => d.status === 'Terlambat').length;
-            const ontime = total - late;
 
-            animateNum('stat-total', total);
-            animateNum('stat-late', late);
-            animateNum('stat-ontime', ontime);
+            const totalHadir = pData.filter(d => d.category === 'Hadir').length;
+            const totalTidakHadir = pData.filter(d => d.category === 'Tidak Hadir').length;
+            const totalTerlambat = pData.filter(d => d.status === 'Terlambat').length;
+
+            // Update Stats Home
+            animateNum('stat-total', totalHadir);
+            animateNum('stat-absent', totalTidakHadir);
+            animateNum('stat-late', totalTerlambat);
 
             renderRecap();
         }
@@ -576,6 +645,17 @@
                 return getPeriodID(dd) === `${yVal}-${mVal}`;
             }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
+            // Hitung Total Hadir Periode Ini
+            const cumHadir = filtered.filter(d => d.category === 'Hadir').length;
+
+            // Update Stats Recap (Kartu di atas tabel)
+            const totalTidakHadir = filtered.filter(d => d.category === 'Tidak Hadir').length;
+            const totalTerlambat = filtered.filter(d => d.status === 'Terlambat').length;
+            
+            document.getElementById('recap-stat-total').innerText = cumHadir;
+            document.getElementById('recap-stat-absent').innerText = totalTidakHadir;
+            document.getElementById('recap-stat-late').innerText = totalTerlambat;
+
             if (filtered.length === 0) { empty.classList.remove('hidden'); }
             else {
                 empty.classList.add('hidden');
@@ -583,14 +663,20 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
 
-                    // Format: Hari, Tanggal
                     const dateObj = new Date(row.date);
                     const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
                     const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-                    // Format Jam: 07.15
-                    const timeDisplay = formatTimeNoSec(row.time);
-                    const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
+                    const timeDisplay = row.time === '--:--' ? row.status : formatTimeNoSec(row.time);
+
+                    let badgeClass = "bg-green-500/20 text-green-400 border border-green-500/30";
+                    let statusText = row.status;
+
+                    if (row.status === 'Terlambat') {
+                        badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+                    } else if (row.category === 'Tidak Hadir') {
+                        badgeClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+                    }
 
                     tr.innerHTML = `
                         <td class="p-4">
@@ -598,11 +684,19 @@
                             <div class="text-xs text-slate-400">${dateOnly}</div>
                         </td>
                         <td class="p-4 font-mono text-slate-200">${timeDisplay}</td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badge}">${row.status}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeClass}">${statusText}</span></td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
+        }
+
+        // --- MODAL FUNCTIONS ---
+        function openAbsenceModal() {
+            document.getElementById('absence-modal').classList.remove('hidden');
+        }
+        function closeAbsenceModal() {
+            document.getElementById('absence-modal').classList.add('hidden');
         }
 
         // --- UTILS & NAVIGATION ---
@@ -632,7 +726,6 @@
             const cy = new Date().getFullYear();
             for (let i = cy - 2; i <= cy + 1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
 
-            // Set default active period
             const now = new Date();
             const pid = getPeriodID(now).split('-');
             ms.value = parseInt(pid[1]);
@@ -646,25 +739,12 @@
             return `${y}-${m}`;
         }
 
-        /*
-        function formatTimeNoSec(timeStr) {
-            if (!timeStr || timeStr === "") return "--:--";
-            const parts = timeStr.split(':');
-            const hour = parts[0] ? parts[0] : "--";
-            const minute = parts[1] ? parts[1] : "00";
-            return `${hour}.${minute}`;
-        }
-        */
-
         function formatTimeNoSec(timeStr) {
             if (!timeStr) return "";
             let s = String(timeStr).trim();
-            // Hapus ".00" di belakang saja
             s = s.replace(/(\.00)+$/, "");
-
             return s;
         }
-
 
         function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
         function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
@@ -678,7 +758,7 @@
             t.className = `toast glass-panel px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] border-l-4 ${type === 'success' ? 'border-green-500' : (type === 'error' ? 'border-red-500' : 'border-yellow-500')}`;
             t.innerHTML = `<div class="${bg} w-6 h-6 rounded-full flex items-center justify-center text-xs text-white shrink-0"><i class="fa-solid ${ic}"></i></div><span class="text-sm font-medium text-white">${msg}</span>`;
             c.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
+            setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(-10px)'; setTimeout(() => t.remove(), 300); }, 3000);
         }
 
         function animateNum(id, target) {
