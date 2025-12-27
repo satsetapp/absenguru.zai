@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Absensi Guru</title>
 
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-Absensi">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -224,17 +232,28 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
-            <header class="flex justify-between items-center mb-8">
+            
+            <!-- HEADER DENGAN TOMBOL INSTALL PWA -->
+            <header class="flex justify-between items-center mb-4 md:mb-8">
                 <div>
                     <h1 class="text-2xl font-bold text-white">Halo, <span id="user-name-display"
                             class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span>
                     </h1>
                     <p id="date-display" class="text-slate-400 text-sm mt-1"></p>
                 </div>
-                <button onclick="refreshData()"
-                    class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
-                    <i class="fa-solid fa-rotate" id="icon-refresh"></i>
-                </button>
+                <div class="flex items-center gap-3">
+                    
+                    <!-- TOMBOL INSTALL PWA (Hidden Default) -->
+                    <button id="btn-install-pwa" onclick="installApp()" 
+                        class="hidden px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-500 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-green-600/20 animate-pulse">
+                        <i class="fa-solid fa-download"></i> Install App
+                    </button>
+
+                    <button onclick="refreshData()"
+                        class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-slate-400 hover:text-white hover:scale-110 transition-all active:scale-95">
+                        <i class="fa-solid fa-rotate" id="icon-refresh"></i>
+                    </button>
+                </div>
             </header>
 
             <!-- TAB: HOME (ABSENSI) -->
@@ -312,7 +331,7 @@
                         </div>
                     </div>
 
-                    <!-- RINGKASAN DI ATAS TABEL (SAMA SEPERTI MENU ABSENSI) -->
+                    <!-- RINGKASAN DI ATAS TABEL -->
                     <div class="grid grid-cols-3 gap-2 p-4 border-b border-white/10 bg-slate-800/50">
                         <div class="text-center p-2 rounded bg-slate-700/50">
                             <p class="text-[9px] uppercase text-green-400 font-bold tracking-wider mb-1">Hadir</p>
@@ -372,12 +391,21 @@
         const TOLERANSI_MENIT = 15;
 
         // --- GLOBAL STATE ---
-        let currentUser = null; // Object { username, name, password }
+        let currentUser = null; 
         let attendanceData = [];
+        let deferredPrompt; // Untuk PWA Install
 
         document.addEventListener('DOMContentLoaded', () => {
             checkSessionCookie();
             setInterval(updateClock, 1000);
+            
+            // Setup PWA Install Listener
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const installBtn = document.getElementById('btn-install-pwa');
+                if (installBtn) installBtn.classList.remove('hidden');
+            });
         });
 
         // --- COOKIE MANAGEMENT ---
@@ -405,6 +433,20 @@
 
         function deleteSessionCookie() {
             document.cookie = COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+
+        // --- PWA INSTALL FUNCTION ---
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User menginstall app');
+            } else {
+                console.log('User menolak install');
+            }
+            deferredPrompt = null;
+            document.getElementById('btn-install-pwa').classList.add('hidden');
         }
 
         // --- AUTH LOGIC ---
@@ -625,7 +667,6 @@
             const totalTidakHadir = pData.filter(d => d.category === 'Tidak Hadir').length;
             const totalTerlambat = pData.filter(d => d.status === 'Terlambat').length;
 
-            // Update Stats Home
             animateNum('stat-total', totalHadir);
             animateNum('stat-absent', totalTidakHadir);
             animateNum('stat-late', totalTerlambat);
@@ -645,10 +686,7 @@
                 return getPeriodID(dd) === `${yVal}-${mVal}`;
             }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Hitung Total Hadir Periode Ini
             const cumHadir = filtered.filter(d => d.category === 'Hadir').length;
-
-            // Update Stats Recap (Kartu di atas tabel)
             const totalTidakHadir = filtered.filter(d => d.category === 'Tidak Hadir').length;
             const totalTerlambat = filtered.filter(d => d.status === 'Terlambat').length;
             
