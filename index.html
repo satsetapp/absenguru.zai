@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+
     <!-- Title Judul Aplikasi (Akan muncul di title tab browser & manifest) -->
     <title>E-Absensi Guru</title>
 
@@ -15,6 +15,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-Absensi">
+
+    <!-- Favicon Browser -->
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- iOS Home Screen -->
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- Theme Color (opsional tapi bagus) -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="msapplication-TileColor" content="#0f172a">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -159,15 +169,17 @@
 
             <div class="text-center mb-8 relative z-10">
                 <!-- LOGO CUSTOM (Mengambil dari logo.png di folder lokal) -->
-                <img src="logo.png" alt="Logo App" class="w-20 h-20 mx-auto mb-4 object-contain drop-shadow-2xl shadow-indigo-500/30">
-                
+                <img src="logo.png" alt="Logo App"
+                    class="w-20 h-20 mx-auto mb-4 object-contain drop-shadow-2xl shadow-indigo-500/30">
+
                 <h1 class="text-3xl font-bold text-white tracking-tight">Login Guru</h1>
                 <p class="text-slate-400 mt-2 text-sm">Masuk dengan akun anda</p>
             </div>
 
             <form id="login-form" class="space-y-5 relative z-10">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username/Email</label>
+                    <label
+                        class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username/Email</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="text" id="login-user"
@@ -182,9 +194,10 @@
                         <input type="password" id="login-pass"
                             class="glass-input w-full rounded-xl py-3 pl-10 pr-12 text-sm placeholder-slate-600"
                             placeholder="••••••" required autocomplete="current-password">
-                        
+
                         <!-- TOGGLE MATA -->
-                        <button type="button" id="toggle-password" class="absolute right-4 top-3.5 text-slate-500 hover:text-white transition-colors focus:outline-none">
+                        <button type="button" id="toggle-password"
+                            class="absolute right-4 top-3.5 text-slate-500 hover:text-white transition-colors focus:outline-none">
                             <i class="fa-solid fa-eye" id="eye-icon"></i>
                         </button>
                     </div>
@@ -238,13 +251,14 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
-            
+
             <!-- HEADER DENGAN LOGO -->
             <header class="flex justify-between items-center mb-4 md:mb-8">
                 <div class="flex items-center gap-3">
                     <!-- LOGO KECIL HEADER (Mengambil dari logo.png) -->
-                    <img src="logo.png" alt="Logo" class="w-8 h-8 rounded-lg object-contain border border-white/10 hidden md:block">
-                    
+                    <img src="logo.png" alt="Logo"
+                        class="w-8 h-8 rounded-lg object-contain border border-white/10 hidden md:block">
+
                     <div>
                         <h1 class="text-xl md:text-2xl font-bold text-white">Halo, <span id="user-name-display"
                                 class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">User</span>
@@ -253,9 +267,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    
+
                     <!-- TOMBOL INSTALL PWA (Hidden Default) -->
-                    <button id="btn-install-pwa" onclick="installApp()" 
+                    <button id="btn-install-pwa" onclick="installApp()"
                         class="hidden px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-500 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-green-600/20 animate-pulse">
                         <i class="fa-solid fa-download"></i> Install App
                     </button>
@@ -311,7 +325,8 @@
 
                     <!-- BUTTON TIDAK HADIR -->
                     <div class="mt-6 relative z-10">
-                        <button onclick="openAbsenceModal()" class="text-xs text-slate-400 hover:text-slate-200 underline decoration-dotted underline-offset-4">
+                        <button onclick="openAbsenceModal()"
+                            class="text-xs text-slate-400 hover:text-slate-200 underline decoration-dotted underline-offset-4">
                             Tidak bisa hadir hari ini?
                         </button>
                     </div>
@@ -349,7 +364,8 @@
                             <h3 class="text-xl font-bold text-green-400" id="recap-stat-total">0</h3>
                         </div>
                         <div class="text-center p-2 rounded bg-slate-700/50">
-                            <p class="text-[9px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir</p>
+                            <p class="text-[9px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir
+                            </p>
                             <h3 class="text-xl font-bold text-yellow-400" id="recap-stat-absent">0</h3>
                         </div>
                         <div class="text-center p-2 rounded bg-slate-700/50">
@@ -381,15 +397,20 @@
     </div>
 
     <!-- MODAL TIDAK HADIR -->
-    <div id="absence-modal" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="absence-modal"
+        class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-sm rounded-2xl p-6 relative animate-bounce-short">
             <h3 class="text-lg font-bold text-white mb-4 text-center">Alasan Tidak Hadir</h3>
             <div class="grid grid-cols-1 gap-3">
-                <button onclick="submitAbsence('Sakit')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Sakit</button>
-                <button onclick="submitAbsence('Izin')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Izin</button>
-                <button onclick="submitAbsence('Lainnya')" class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Lainnya</button>
+                <button onclick="submitAbsence('Sakit')"
+                    class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Sakit</button>
+                <button onclick="submitAbsence('Izin')"
+                    class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Izin</button>
+                <button onclick="submitAbsence('Lainnya')"
+                    class="glass-input hover:bg-slate-700 py-3 rounded-xl font-bold text-white transition-colors">Lainnya</button>
             </div>
-            <button onclick="closeAbsenceModal()" class="mt-4 text-slate-400 text-sm hover:text-white w-full text-center">Batal</button>
+            <button onclick="closeAbsenceModal()"
+                class="mt-4 text-slate-400 text-sm hover:text-white w-full text-center">Batal</button>
         </div>
     </div>
 
@@ -409,7 +430,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkSessionCookie();
             setInterval(updateClock, 1000);
-            
+
             // Setup PWA Install Listener
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
@@ -533,7 +554,7 @@
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             // Ganti Icon Mata
             eyeIcon.className = type === 'text' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
         });
@@ -586,7 +607,7 @@
 
             let status = 'Tepat Waktu';
             if (nowTotal > limitTotal) status = 'Terlambat';
-            
+
             let category = 'Hadir';
 
             await sendAbsenceData(dateStr, timeStr, status, category);
@@ -669,10 +690,10 @@
 
                 const displayTime = todayData.time === '--:--' ? todayData.status : formatTimeNoSec(todayData.time);
                 document.getElementById('status-text').textContent = `${todayData.status} (${displayTime})`;
-                
+
                 let dotColor = 'bg-green-500';
-                if(todayData.status === 'Terlambat') dotColor = 'bg-red-500';
-                if(todayData.category === 'Tidak Hadir') dotColor = 'bg-yellow-500';
+                if (todayData.status === 'Terlambat') dotColor = 'bg-red-500';
+                if (todayData.category === 'Tidak Hadir') dotColor = 'bg-yellow-500';
                 document.getElementById('status-dot').className = `w-2 h-2 rounded-full ${dotColor}`;
 
             } else {
@@ -719,7 +740,7 @@
             // Update Stats Recap (Kartu di atas tabel)
             const totalTidakHadir = filtered.filter(d => d.category === 'Tidak Hadir').length;
             const totalTerlambat = filtered.filter(d => d.status === 'Terlambat').length;
-            
+
             document.getElementById('recap-stat-total').innerText = cumHadir;
             document.getElementById('recap-stat-absent').innerText = totalTidakHadir;
             document.getElementById('recap-stat-late').innerText = totalTerlambat;
@@ -733,15 +754,15 @@
 
                     // Format: Hari, Tanggal
                     const dateObj = new Date(row.date);
-                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' }); 
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
                     const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                    
+
                     // Format Jam: 07.15
                     const timeDisplay = row.time === '--:--' ? row.status : formatTimeNoSec(row.time);
-                    
+
                     const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
                     if (row.category === 'Tidak Hadir') {
-                         badge = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+                        badge = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
                     }
 
                     tr.innerHTML = `
