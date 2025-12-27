@@ -161,13 +161,13 @@
                 <!-- LOGO CUSTOM (Mengambil dari logo.png di folder lokal) -->
                 <img src="logo.png" alt="Logo App" class="w-20 h-20 mx-auto mb-4 object-contain drop-shadow-2xl shadow-indigo-500/30">
                 
-                <h1 class="text-3xl font-bold text-white tracking-tight">E-Absensi Guru</h1>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Login Guru</h1>
                 <p class="text-slate-400 mt-2 text-sm">Masuk dengan akun anda</p>
             </div>
 
             <form id="login-form" class="space-y-5 relative z-10">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username/Email</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="text" id="login-user"
@@ -180,8 +180,13 @@
                     <div class="relative">
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="password" id="login-pass"
-                            class="glass-input w-full rounded-xl py-3 pl-10 pr-4 text-sm placeholder-slate-600"
-                            placeholder="•••••••" required autocomplete="current-password">
+                            class="glass-input w-full rounded-xl py-3 pl-10 pr-12 text-sm placeholder-slate-600"
+                            placeholder="••••••" required autocomplete="current-password">
+                        
+                        <!-- TOGGLE MATA -->
+                        <button type="button" id="toggle-password" class="absolute right-4 top-3.5 text-slate-500 hover:text-white transition-colors focus:outline-none">
+                            <i class="fa-solid fa-eye" id="eye-icon"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -251,7 +256,7 @@
                     
                     <!-- TOMBOL INSTALL PWA (Hidden Default) -->
                     <button id="btn-install-pwa" onclick="installApp()" 
-                        class="hidden px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-500 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-green-600/20">
+                        class="hidden px-3 py-1.5 text-xs font-bold text-white bg-green-600 hover:bg-green-500 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-green-600/20 animate-pulse">
                         <i class="fa-solid fa-download"></i> Install App
                     </button>
 
@@ -337,7 +342,7 @@
                         </div>
                     </div>
 
-                    <!-- RINGKASAN DI ATAS TABEL -->
+                    <!-- RINGKASAN DI ATAS TABEL (SAMA SEPERTI MENU ABSENSI) -->
                     <div class="grid grid-cols-3 gap-2 p-4 border-b border-white/10 bg-slate-800/50">
                         <div class="text-center p-2 rounded bg-slate-700/50">
                             <p class="text-[9px] uppercase text-green-400 font-bold tracking-wider mb-1">Hadir</p>
@@ -388,7 +393,7 @@
         </div>
     </div>
 
-    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <!-- ================= JAVASCRIPT LOGIC (FULLY FIXED) ================= -->
     <script>
         // --- CONFIG ---
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec';
@@ -397,7 +402,7 @@
         const TOLERANSI_MENIT = 15;
 
         // --- GLOBAL STATE ---
-        let currentUser = null; 
+        let currentUser = null; // Object { username, name, password }
         let attendanceData = [];
         let deferredPrompt; // Untuk PWA Install
 
@@ -519,6 +524,19 @@
                 location.reload();
             }
         }
+
+        // --- TOGGLE PASSWORD (FITUR BARU) ---
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('login-pass');
+        const eyeIcon = document.getElementById('eye-icon');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Ganti Icon Mata
+            eyeIcon.className = type === 'text' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
 
         // --- DATA & API ---
 
@@ -697,10 +715,11 @@
 
             // Hitung Total Hadir Periode Ini
             const cumHadir = filtered.filter(d => d.category === 'Hadir').length;
+
+            // Update Stats Recap (Kartu di atas tabel)
             const totalTidakHadir = filtered.filter(d => d.category === 'Tidak Hadir').length;
             const totalTerlambat = filtered.filter(d => d.status === 'Terlambat').length;
             
-            // Update Stats Recap
             document.getElementById('recap-stat-total').innerText = cumHadir;
             document.getElementById('recap-stat-absent').innerText = totalTidakHadir;
             document.getElementById('recap-stat-late').innerText = totalTerlambat;
@@ -712,19 +731,17 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
 
+                    // Format: Hari, Tanggal
                     const dateObj = new Date(row.date);
-                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' }); 
                     const dateOnly = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
+                    
+                    // Format Jam: 07.15
                     const timeDisplay = row.time === '--:--' ? row.status : formatTimeNoSec(row.time);
-
-                    let badgeClass = "bg-green-500/20 text-green-400 border border-green-500/30";
-                    let statusText = row.status;
-
-                    if (row.status === 'Terlambat') {
-                        badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
-                    } else if (row.category === 'Tidak Hadir') {
-                        badgeClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+                    
+                    const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
+                    if (row.category === 'Tidak Hadir') {
+                         badge = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
                     }
 
                     tr.innerHTML = `
@@ -733,7 +750,7 @@
                             <div class="text-xs text-slate-400">${dateOnly}</div>
                         </td>
                         <td class="p-4 font-mono text-slate-200">${timeDisplay}</td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeClass}">${statusText}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badge}">${row.status}</span></td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -775,6 +792,7 @@
             const cy = new Date().getFullYear();
             for (let i = cy - 2; i <= cy + 1; i++) ys.innerHTML += `<option value="${i}">${i}</option>`;
 
+            // Set default active period
             const now = new Date();
             const pid = getPeriodID(now).split('-');
             ms.value = parseInt(pid[1]);
@@ -791,7 +809,7 @@
         function formatTimeNoSec(timeStr) {
             if (!timeStr) return "";
             let s = String(timeStr).trim();
-            s = s.replace(/(\.00)+$/, ""); 
+            s = s.replace(/(\.00)+$/, ""); // Hapus ".00" di belakang saja
             return s;
         }
 
