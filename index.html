@@ -20,14 +20,6 @@
     <meta property="og:site_name" content="E-Absensi Guru">
     <meta property="og:locale" content="id_ID">
 
-    <!-- PWA Manifest Link (Mengambil manifest.json dari folder lokal) -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- iOS PWA Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="E-Absensi">
-
     <!-- Favicon Browser -->
     <link rel="icon" type="image/png" href="logo.png">
 
@@ -205,7 +197,7 @@
                         <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="password" id="login-pass"
                             class="glass-input w-full rounded-xl py-3 pl-10 pr-12 text-sm placeholder-slate-600"
-                            placeholder="••••••" required autocomplete="current-password">
+                            placeholder="•••••" required autocomplete="current-password">
 
                         <!-- TOGGLE MATA -->
                         <button type="button" id="toggle-password"
@@ -228,7 +220,7 @@
 
         <!-- Sidebar / Bottom Nav -->
         <nav
-            class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex md:flex-col justify-between">
+            class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex flex-col md:flex-col justify-between">
             <div class="hidden md:block p-6 border-b border-white/5">
                 <div class="flex items-center gap-3">
                     <!-- LOGO KECIL HEADER (Mengambil dari logo.png) -->
@@ -237,27 +229,32 @@
                 </div>
             </div>
 
-            <div class="flex md:flex-col justify-around md:justify-start p-2 md:p-4 gap-2 h-16 md:h-auto">
+            <!-- AREA MENU -->
+            <div class="flex md:flex-col justify-around md:justify-between h-16 md:h-auto p-2 md:p-4 gap-2 md:gap-2">
                 <button onclick="switchTab('home')" id="btn-tab-home"
-                    class="nav-item active flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    class="nav-item active flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:px-4 md:py-3 rounded-xl text-white transition-all flex-1 w-full">
                     <i class="fa-solid fa-house text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Absensi</span>
                 </button>
 
                 <button onclick="switchTab('recap')" id="btn-tab-recap"
-                    class="nav-item flex flex-col md:flex-row items-center gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                    class="nav-item flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 transition-all flex-1 w-full">
                     <i class="fa-solid fa-list-ul text-lg md:text-base"></i>
                     <span class="text-[10px] md:text-sm font-medium">Riwayat</span>
                 </button>
 
                 <div class="md:mt-auto hidden md:block">
-                    <button onclick="handleLogout()"
+                    <button onclick="openLogoutModal()"
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-medium">
                         <i class="fa-solid fa-right-from-bracket"></i> Keluar
                     </button>
                 </div>
-                <button onclick="handleLogout()" class="md:hidden text-red-400 p-2"><i
-                        class="fa-solid fa-right-from-bracket text-lg"></i></button>
+                
+                <!-- Tombol Keluar Mobile -->
+                <button onclick="openLogoutModal()" class="md:hidden flex-1 flex flex-col items-center justify-center text-red-400 rounded-xl hover:bg-red-500/10 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                    <span class="text-[9px] font-bold mt-1">Keluar</span>
+                </button>
             </div>
         </nav>
 
@@ -376,8 +373,7 @@
                             <h3 class="text-xl font-bold text-green-400" id="recap-stat-total">0</h3>
                         </div>
                         <div class="text-center p-2 rounded bg-slate-700/50">
-                            <p class="text-[9px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir
-                            </p>
+                            <p class="text-[9px] uppercase text-yellow-400 font-bold tracking-wider mb-1">Tidak Hadir</p>
                             <h3 class="text-xl font-bold text-yellow-400" id="recap-stat-absent">0</h3>
                         </div>
                         <div class="text-center p-2 rounded bg-slate-700/50">
@@ -423,6 +419,30 @@
             </div>
             <button onclick="closeAbsenceModal()"
                 class="mt-4 text-slate-400 text-sm hover:text-white w-full text-center">Batal</button>
+        </div>
+    </div>
+
+    <!-- MODAL LOGOUT (PROFESIONAL) -->
+    <div id="logout-modal"
+        class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm rounded-2xl p-6 relative">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl text-red-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Keluar Aplikasi?</h3>
+                <p class="text-slate-400 text-sm">Apakah Anda yakin ingin mengakhiri sesi?</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-2">
+                <button onclick="closeLogoutModal()"
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-colors">
+                    Batal
+                </button>
+                <button onclick="handleLogout()"
+                    class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-red-500/20">
+                    Ya, Keluar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -552,10 +572,13 @@
         });
 
         function handleLogout() {
-            if (confirm('Apakah Anda yakin ingin keluar?')) {
-                deleteSessionCookie();
-                location.reload();
-            }
+            openLogoutModal();
+        }
+
+        function confirmLogout() {
+            deleteSessionCookie();
+            closeLogoutModal();
+            location.reload();
         }
 
         // --- TOGGLE PASSWORD (FITUR BARU) ---
@@ -601,13 +624,10 @@
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
-            //const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            //const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             const timeStr =
                 `${String(now.getHours()).padStart(2, '0')}.` +
                 `${String(now.getMinutes()).padStart(2, '0')}.` +
                 `${String(now.getSeconds()).padStart(2, '0')}`;
-
 
             // Validasi
             if (attendanceData.some(d => d.date === dateStr)) {
@@ -754,11 +774,10 @@
 
             // Hitung Total Hadir Periode Ini
             const cumHadir = filtered.filter(d => d.category === 'Hadir').length;
-
-            // Update Stats Recap (Kartu di atas tabel)
             const totalTidakHadir = filtered.filter(d => d.category === 'Tidak Hadir').length;
             const totalTerlambat = filtered.filter(d => d.status === 'Terlambat').length;
 
+            // Update Stats Recap (Kartu di atas tabel)
             document.getElementById('recap-stat-total').innerText = cumHadir;
             document.getElementById('recap-stat-absent').innerText = totalTidakHadir;
             document.getElementById('recap-stat-late').innerText = totalTerlambat;
@@ -778,9 +797,13 @@
                     // Format Jam: 07.15
                     const timeDisplay = row.time === '--:--' ? row.status : formatTimeNoSec(row.time);
 
-                    const badge = row.status === 'Terlambat' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-green-500/20 text-green-400 border border-green-500/30";
-                    if (row.category === 'Tidak Hadir') {
-                        badge = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+                    let badgeClass = "bg-green-500/20 text-green-400 border border-green-500/30";
+                    let statusText = row.status;
+
+                    if (row.status === 'Terlambat') {
+                        badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+                    } else if (row.category === 'Tidak Hadir') {
+                        badgeClass = "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
                     }
 
                     tr.innerHTML = `
@@ -789,7 +812,7 @@
                             <div class="text-xs text-slate-400">${dateOnly}</div>
                         </td>
                         <td class="p-4 font-mono text-slate-200">${timeDisplay}</td>
-                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badge}">${row.status}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-md text-xs font-bold ${badgeClass}">${statusText}</span></td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -804,6 +827,13 @@
             document.getElementById('absence-modal').classList.add('hidden');
         }
 
+        function openLogoutModal() {
+            document.getElementById('logout-modal').classList.remove('hidden');
+        }
+        function closeLogoutModal() {
+            document.getElementById('logout-modal').classList.add('hidden');
+        }
+
         // --- UTILS & NAVIGATION ---
 
         function switchTab(tab) {
@@ -811,14 +841,23 @@
             document.getElementById('tab-recap').classList.add('hidden');
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
 
-            document.querySelectorAll('.nav-item').forEach(btn => {
-                btn.classList.remove('active', 'text-white', 'bg-white/10');
-                btn.classList.add('text-slate-400');
+            const allBtns = document.querySelectorAll('.nav-item');
+            
+            allBtns.forEach(btn => {
+                const isTarget = btn.id === `btn-tab-${tab}`;
+                
+                if (isTarget) {
+                    // Style Active
+                    btn.classList.remove('text-slate-400');
+                    btn.classList.add('text-white', 'bg-white/10');
+                    btn.classList.remove('hover:text-white', 'hover:bg-white/5');
+                } else {
+                    // Style Non-Active (Grey + Hover)
+                    btn.classList.add('text-slate-400');
+                    btn.classList.add('hover:text-white', 'hover:bg-white/5');
+                    btn.classList.remove('text-white', 'bg-white/10');
+                }
             });
-
-            const activeBtn = document.getElementById(`btn-tab-${tab}`);
-            activeBtn.classList.add('active', 'text-white', 'bg-white/10');
-            activeBtn.classList.remove('text-slate-400');
         }
 
         function initFilters() {
@@ -848,7 +887,7 @@
         function formatTimeNoSec(timeStr) {
             if (!timeStr) return "";
             let s = String(timeStr).trim();
-            s = s.replace(/(\.00)+$/, ""); // Hapus ".00" di belakang saja
+            s = s.replace(/(\.00)+$/, ""); 
             return s;
         }
 
