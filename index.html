@@ -432,7 +432,7 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQnwKQbHCrEUiKs2Cft2qAbgxlzprOzwWV3_sb9UjN4xQ_lk-ywuXnLqHzS5cYpnV2/exec';
         const COOKIE_NAME = 'absensi_auth_v4';
         const JAM_MASUK = 7;
-        const TOLERANSI_MENIT = 15;
+        const TOLERANSI_MENIT = 1;
 
         // --- GLOBAL STATE ---
         let currentUser = null; // Object { username, name, password }
@@ -602,7 +602,11 @@
             const day = String(now.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
             //const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            //const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const timeStr =
+                `${String(now.getHours()).padStart(2, '0')}.` +
+                `${String(now.getMinutes()).padStart(2, '0')}.` +
+                `${String(now.getSeconds()).padStart(2, '0')}`;
 
 
             // Validasi
