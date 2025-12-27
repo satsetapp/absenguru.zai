@@ -218,10 +218,10 @@
     <!-- ================= APP DASHBOARD ================= -->
     <div id="app-page" class="hidden min-h-screen flex flex-col md:flex-row relative">
 
-        <!-- Sidebar / Bottom Nav -->
+        <!-- Sidebar Desktop (Kiri) - Hanya tampil di Desktop -->
         <nav
-            class="glass-panel fixed md:sticky bottom-0 z-40 w-full md:w-64 md:h-screen border-t md:border-t-0 md:border-r border-white/10 flex flex-col md:flex-col justify-between">
-            <div class="hidden md:block p-6 border-b border-white/5">
+            class="glass-panel hidden md:flex md:w-64 md:h-screen border-r border-white/10 flex-col justify-between fixed left-0 top-0 bottom-0 z-40">
+            <div class="p-6 border-b border-white/5">
                 <div class="flex items-center gap-3">
                     <!-- LOGO KECIL HEADER (Mengambil dari logo.png) -->
                     <img src="logo.png" alt="Logo" class="w-8 h-8 rounded-lg object-contain border border-white/10">
@@ -229,38 +229,57 @@
                 </div>
             </div>
 
-            <!-- AREA MENU -->
-            <div class="flex md:flex-col justify-around md:justify-between h-16 md:h-auto p-2 md:p-4 gap-2 md:gap-2">
-                <button onclick="switchTab('home')" id="btn-tab-home"
-                    class="nav-item active flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:px-4 md:py-3 rounded-xl text-white transition-all flex-1 w-full">
-                    <i class="fa-solid fa-house text-lg md:text-base"></i>
-                    <span class="text-[10px] md:text-sm font-medium">Absensi</span>
-                </button>
+            <!-- AREA MENU DESKTOP -->
+            <div class="flex flex-col justify-between h-auto p-4 gap-2 flex-1">
+                <div class="space-y-2">
+                    <button onclick="switchTab('home')" id="btn-tab-home"
+                        class="nav-item active flex flex-row items-center gap-3 px-4 py-3 rounded-xl text-white bg-white/10 transition-all w-full text-left">
+                        <i class="fa-solid fa-house text-base"></i>
+                        <span class="text-sm font-medium">Absensi</span>
+                    </button>
 
-                <button onclick="switchTab('recap')" id="btn-tab-recap"
-                    class="nav-item flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:px-4 md:py-3 rounded-xl text-slate-400 transition-all flex-1 w-full">
-                    <i class="fa-solid fa-list-ul text-lg md:text-base"></i>
-                    <span class="text-[10px] md:text-sm font-medium">Riwayat</span>
-                </button>
-
-                <div class="md:mt-auto hidden md:block">
+                    <button onclick="switchTab('recap')" id="btn-tab-recap"
+                        class="nav-item flex flex-row items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all w-full text-left">
+                        <i class="fa-solid fa-list-ul text-base"></i>
+                        <span class="text-sm font-medium">Riwayat</span>
+                    </button>
+                </div>
+                
+                <!-- Logout Desktop -->
+                <div class="mt-auto pt-4 border-t border-white/5">
                     <button onclick="openLogoutModal()"
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-medium">
                         <i class="fa-solid fa-right-from-bracket"></i> Keluar
                     </button>
                 </div>
+            </div>
+        </nav>
+
+        <!-- Bottom Nav Mobile - Hanya tampil di Mobile -->
+        <nav class="glass-panel md:hidden fixed bottom-0 left-0 right-0 z-40 w-full border-t border-white/10">
+            <div class="flex justify-around items-center h-16 p-2 gap-2">
+                <button onclick="switchTab('home')" id="btn-tab-home-mobile"
+                    class="nav-item-mobile active flex flex-col items-center justify-center gap-1 rounded-xl text-white bg-white/10 transition-all flex-1 w-full py-2">
+                    <i class="fa-solid fa-house text-lg"></i>
+                    <span class="text-[10px] font-medium">Absensi</span>
+                </button>
+
+                <button onclick="switchTab('recap')" id="btn-tab-recap-mobile"
+                    class="nav-item-mobile flex flex-col items-center justify-center gap-1 rounded-xl text-slate-400 transition-all flex-1 w-full py-2">
+                    <i class="fa-solid fa-list-ul text-lg"></i>
+                    <span class="text-[10px] font-medium">Riwayat</span>
+                </button>
                 
-                <!-- Tombol Keluar Mobile -->
-                <button onclick="openLogoutModal()" class="md:hidden flex-1 flex flex-col items-center justify-center text-red-400 rounded-xl hover:bg-red-500/10 transition-colors">
+                <button onclick="openLogoutModal()"
+                    class="flex flex-col items-center justify-center gap-1 rounded-xl text-red-400 hover:bg-red-500/10 transition-all flex-1 w-full py-2">
                     <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                    <span class="text-[9px] font-bold mt-1">Keluar</span>
+                    <span class="text-[10px] font-medium">Keluar</span>
                 </button>
             </div>
         </nav>
 
         <!-- Main Content -->
-        <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto relative z-0">
-
+        <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8 overflow-y-auto relative z-0 md:ml-64">
             <!-- HEADER DENGAN LOGO -->
             <header class="flex justify-between items-center mb-4 md:mb-8">
                 <div class="flex items-center gap-3">
@@ -438,7 +457,7 @@
                     class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-colors">
                     Batal
                 </button>
-                <button onclick="handleLogout()"
+                <button onclick="confirmLogout()"
                     class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-red-500/20">
                     Ya, Keluar
                 </button>
@@ -531,6 +550,9 @@
                 updateDateDisplay();
                 initFilters();
                 fetchData();
+                
+                // Set active tab UI saat pertama load - FIX: Panggil switchTab
+                switchTab('home');
             } else {
                 loginPage.classList.remove('hidden');
                 appPage.classList.add('hidden');
@@ -570,16 +592,6 @@
                 toggleLoading(false);
             }
         });
-
-        function handleLogout() {
-            openLogoutModal();
-        }
-
-        function confirmLogout() {
-            deleteSessionCookie();
-            closeLogoutModal();
-            location.reload();
-        }
 
         // --- TOGGLE PASSWORD (FITUR BARU) ---
         const togglePassword = document.getElementById('toggle-password');
@@ -721,7 +733,7 @@
 
             if (todayData) {
                 btn.disabled = true;
-                const btnText = todayData.category === 'Tidak Hadir' ? 'SELESAI (TIK HADIR)' : 'SELESAI';
+                const btnText = todayData.category === 'Tidak Hadir' ? 'SELESAI (TIDAK HADIR)' : 'SELESAI';
                 btn.innerHTML = `<i class="fa-solid fa-check text-4xl"></i><span>${btnText}</span>`;
                 btn.classList.add('opacity-50');
                 statCont.classList.remove('hidden');
@@ -841,21 +853,35 @@
             document.getElementById('tab-recap').classList.add('hidden');
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
 
-            const allBtns = document.querySelectorAll('.nav-item');
-            
-            allBtns.forEach(btn => {
+            // Update UI untuk Desktop
+            const desktopBtns = document.querySelectorAll('.nav-item');
+            desktopBtns.forEach(btn => {
                 const isTarget = btn.id === `btn-tab-${tab}`;
                 
                 if (isTarget) {
-                    // Style Active
+                    // Style Active Desktop
+                    btn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-white/5');
+                    btn.classList.add('text-white', 'bg-white/10');
+                } else {
+                    // Style Non-Active Desktop
+                    btn.classList.remove('text-white', 'bg-white/10');
+                    btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-white/5');
+                }
+            });
+
+            // Update UI untuk Mobile
+            const mobileBtns = document.querySelectorAll('.nav-item-mobile');
+            mobileBtns.forEach(btn => {
+                const isTarget = btn.id === `btn-tab-${tab}-mobile`;
+                
+                if (isTarget) {
+                    // Style Active Mobile
                     btn.classList.remove('text-slate-400');
                     btn.classList.add('text-white', 'bg-white/10');
-                    btn.classList.remove('hover:text-white', 'hover:bg-white/5');
                 } else {
-                    // Style Non-Active (Grey + Hover)
-                    btn.classList.add('text-slate-400');
-                    btn.classList.add('hover:text-white', 'hover:bg-white/5');
+                    // Style Non-Active Mobile
                     btn.classList.remove('text-white', 'bg-white/10');
+                    btn.classList.add('text-slate-400');
                 }
             });
         }
@@ -910,6 +936,13 @@
             const el = document.getElementById(id); const s = parseInt(el.innerText); if (s === target) return;
             const d = target - s; const dur = 500; let cur = s;
             const timer = setInterval(() => { cur += (d > 0 ? 1 : -1); el.innerText = cur; if (cur === target) clearInterval(timer); }, Math.max(10, dur / Math.abs(d)));
+        }
+
+        // --- LOGOUT FUNCTIONS ---
+        function confirmLogout() {
+            deleteSessionCookie();
+            closeLogoutModal();
+            location.reload();
         }
     </script>
 </body>
