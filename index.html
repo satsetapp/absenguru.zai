@@ -8,6 +8,18 @@
     <!-- Title Judul Aplikasi (Akan muncul di title tab browser & manifest) -->
     <title>E-Absensi Guru</title>
 
+    <!-- Open Graph / WhatsApp Preview -->
+    <meta property="og:title" content="E-Absensi Guru">
+    <meta property="og:description"
+        content="Aplikasi absensi guru berbasis web. Cepat, modern, dan responsif untuk HP & Laptop.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://satsetapp.github.io/absenguru.zai/">
+    <meta property="og:image" content="https://satsetapp.github.io/absenguru.zai/logo.png">
+
+    <!-- Optional tapi disarankan -->
+    <meta property="og:site_name" content="E-Absensi Guru">
+    <meta property="og:locale" content="id_ID">
+
     <!-- PWA Manifest Link (Mengambil manifest.json dari folder lokal) -->
     <link rel="manifest" href="manifest.json">
 
@@ -178,8 +190,8 @@
 
             <form id="login-form" class="space-y-5 relative z-10">
                 <div>
-                    <label
-                        class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username / Email</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Username /
+                        Email</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-4 top-3.5 text-slate-500"></i>
                         <input type="text" id="login-user"
