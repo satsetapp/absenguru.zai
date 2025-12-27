@@ -457,19 +457,19 @@
         async function doAbsen() {
             const now = new Date();
 
-            // --- 1. FORMAT TANGGAL (Lokal WIB) ---
+            // Fix Format Tanggal: Gunakan YYYY-MM-DD lokal manual agar akurat (WIB)
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
 
-            // --- 2. FORMAT JAM (TANPA DETIK) ---
-            // Kita ambil jam dan menit secara manual, tanpa detik/milidetik
-            const hour = String(now.getHours()).padStart(2, '0');
-            const minute = String(now.getMinutes()).padStart(2, '0');
-            const timeStr = `${hour}:${minute}`; // Hasil: "00:44" atau "22:52"
+            //const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
 
-            // --- 3. VALIDASI ---
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            const timeStr = `${jam}.${menit}`; // Hasil pasti: 19.48
+
+            // Fix Validasi Lokal
             const isAlreadyAbsen = attendanceData.some(d => {
                 const dbDateStr = d.date;
                 return dbDateStr === dateStr;
@@ -481,15 +481,15 @@
                 return;
             }
 
-            // --- 4. LOGIKA STATUS ---
-            const currentHour = now.getHours();
+            const hour = now.getHours();
 
+            // Status: Tepat Waktu / Terlambat
             let status = 'Tepat Waktu';
-            if (currentHour >= JAM_MASUK) status = 'Terlambat';
+            if (hour >= JAM_MASUK) status = 'Terlambat';
 
+            // Kategori: Selalu 'Hadir' (Logic Fixed)
             let category = 'Hadir';
 
-            // --- 5. KIRIM DATA ---
             toggleLoading(true, 'Mengirim absensi...');
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -499,7 +499,7 @@
                         username: currentUser.username,
                         password: currentUser.password,
                         date: dateStr,
-                        time: timeStr, // Kirim format bersih "HH:mm"
+                        time: timeStr,
                         status: status,
                         category: category
                     })
@@ -650,14 +650,40 @@
             return `${y}-${m}`;
         }
 
+        /*
         function formatTimeNoSec(timeStr) {
             if (!timeStr || timeStr === "") return "--:--";
-            const parts = timeStr.split(':');
+            const parts = timeStr.split(':'); 
             const hour = parts[0] ? parts[0] : "--";
             const minute = parts[1] ? parts[1] : "00";
             return `${hour}.${minute}`;
         }
+        */
+        function formatTimeNoSec(timeStr) {
+            if (!timeStr) return "--:--";
 
+            // Jika data dari Google Sheet masih berupa full ISO string (misal: 2023-12-01T19:48:00...)
+            if (timeStr.toString().includes('T') || timeStr.toString().length > 8) {
+                const d = new Date(timeStr);
+                if (!isNaN(d.getTime())) {
+                    const jam = String(d.getHours()).padStart(2, '0');
+                    const menit = String(d.getMinutes()).padStart(2, '0');
+                    return `${jam}.${menit}`;
+                }
+            }
+
+            // Jika format string biasa (19:48:00 atau 19.48.00)
+            // Kita ganti semua titik dua (:) jadi titik (.) biar seragam
+            let cleanStr = timeStr.toString().replace(/:/g, '.');
+
+            // Ambil 5 karakter pertama saja (07.00)
+            if (cleanStr.length >= 5) {
+                return cleanStr.substring(0, 5);
+            }
+
+            return cleanStr;
+        }
+        
         function updateClock() { document.getElementById('live-clock').textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }
         function updateDateDisplay() { document.getElementById('date-display').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
         function toggleLoading(show, txt) { const el = document.getElementById('loading-overlay'); document.getElementById('loading-text').textContent = txt; if (show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
